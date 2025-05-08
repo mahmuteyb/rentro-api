@@ -5,7 +5,8 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 
 tuik_cpi = {
-    "2022-01": 22.58, "2023-01": 72.45, "2024-01": 54.72, "2025-01": 56.35
+    "2022-01": 22.58, "2023-01": 72.45, "2024-01": 54.72, "2025-01": 56.35,
+    "2022-05": 39.33, "2023-05": 63.72, "2024-05": 62.51
 }
 
 @app.route('/calculate-rent', methods=['POST'])
@@ -29,15 +30,20 @@ def calculate_rent():
             if year == 1:
                 output_lines.append(f"{label}: {current_rent:.2f} TL")
             else:
-                index_month = (start_date.month - 1) or 12
-                index_year = start_date.year if start_date.month > 1 else start_date.year - 1
+                increase_month = start_date.month
+                increase_year = start_date.year
+                index_month = (increase_month - 1) or 12
+                index_year = increase_year if increase_month > 1 else increase_year - 1
                 key = f"{index_year}-{str(index_month).zfill(2)}"
                 cpi = tuik_cpi.get(key)
-                if cpi:
-                    if property_type.lower() == "konut" and datetime(2022, 6, 11) <= start_date <= datetime(2024, 7, 1):
-                        cpi = 25.0
-                    current_rent *= (1 + cpi / 100)
-                    output_lines.append(f"{label}: {current_rent:.2f} TL (%{cpi})")
+                if not cpi:
+                    break  # CPI verisi yoksa hesaplamayı durdur
+
+                if property_type.lower() == "konut" and datetime(2022, 6, 11) <= start_date <= datetime(2024, 7, 1):
+                    cpi = 25.0
+                current_rent *= (1 + cpi / 100)
+                output_lines.append(f"{label}: {current_rent:.2f} TL (%{cpi})")
+
             start_date = start_date.replace(year=start_date.year + 1)
             year += 1
 
