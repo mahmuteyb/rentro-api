@@ -33,48 +33,44 @@ def calculate_rent():
         start_date = datetime.strptime(start_date_str, "%d/%m/%Y")
         current_rent = initial_rent
         output_lines = []
-        year = 1
 
-        while True:
-            if year == 1:
-                current_year_start = start_date
-            else:
-                current_year_start = start_date.replace(year=start_date.year + year - 1)
-            current_year_end = current_year_start.replace(year=current_year_start.year + 1) - timedelta(days=1)
+        for year in range(1, 30):  # 30 yıl sınır koyduk, break ile duracak zaten
+            current_year_start = start_date.replace(year=start_date.year + year - 1)
+            current_year_end = start_date.replace(year=start_date.year + year) - timedelta(days=1)
 
-            if current_year_end > today:
+            if current_year_start > today:
                 break
 
             label = f"{current_year_start.strftime('%d/%m/%Y')} - {current_year_end.strftime('%d/%m/%Y')}"
 
             if year == 1:
                 output_lines.append(f"{label}: {current_rent:.2f} TL")
+                continue
+
+            # Artış ayı için bir önceki ayın TÜFE'si
+            increase_month = current_year_start.month
+            increase_year = current_year_start.year
+            if increase_month == 1:
+                index_month = 12
+                index_year = increase_year - 1
             else:
-                # Artış ayı için bir önceki ayın TÜFE'si
-                increase_month = current_year_start.month
-                increase_year = current_year_start.year
-                if increase_month == 1:
-                    index_month = 12
-                    index_year = increase_year - 1
-                else:
-                    index_month = increase_month - 1
-                    index_year = increase_year
+                index_month = increase_month - 1
+                index_year = increase_year
 
-                key = f"{index_year}-{str(index_month).zfill(2)}"
-                cpi = tuik_cpi.get(key)
-                print(f"DEBUG: key = {key}, cpi = {cpi}, date = {current_year_start.strftime('%d/%m/%Y')}")
+            key = f"{index_year}-{str(index_month).zfill(2)}"
+            cpi = tuik_cpi.get(key)
 
-                if not cpi:
-                    break
+            print(f"DEBUG: year={year}, key={key}, cpi={cpi}, date={current_year_start.strftime('%d/%m/%Y')}")
 
-                if (property_type.lower() == "konut" and
-                    datetime(2022, 6, 11) <= current_year_start <= datetime(2024, 7, 1)):
-                    cpi = min(cpi, 25.0)
+            if not cpi:
+                break
 
-                current_rent *= (1 + cpi / 100)
-                output_lines.append(f"{label}: {current_rent:.2f} TL (%{cpi} artış)")
+            if (property_type.lower() == "konut" and
+                datetime(2022, 6, 11) <= current_year_start <= datetime(2024, 7, 1)):
+                cpi = min(cpi, 25.0)
 
-            year += 1
+            current_rent *= (1 + cpi / 100)
+            output_lines.append(f"{label}: {current_rent:.2f} TL (%{cpi} artış)")
 
         return jsonify({"output": "\n".join(output_lines)})
 
