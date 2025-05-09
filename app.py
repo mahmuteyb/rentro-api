@@ -35,7 +35,11 @@ def calculate_rent():
         output_lines = []
 
         for year in range(1, 30):  # 30 yıl sınır koyduk, break ile duracak zaten
-            current_year_start = start_date.replace(year=start_date.year + year - 1)
+            current_year_start = datetime(
+    year=start_date.year + year - 1,
+    month=start_date.month,
+    day=start_date.day
+)
             current_year_end = start_date.replace(year=start_date.year + year) - timedelta(days=1)
 
             if current_year_start > today:
