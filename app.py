@@ -5,8 +5,10 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 
 tuik_cpi = {
-    "2022-01": 22.58, "2023-01": 72.45, "2024-01": 54.72, "2025-01": 56.35,
-    "2022-05": 39.33, "2023-05": 63.72, "2024-05": 62.51
+    "2022-01": 22.58, "2022-04": 34.46, "2022-05": 39.33,
+    "2023-04": 57.50, "2023-05": 63.72,
+    "2024-04": 59.64, "2024-05": 62.51,
+    "2025-04": 56.35
 }
 
 @app.route('/calculate-rent', methods=['POST'])
@@ -32,8 +34,12 @@ def calculate_rent():
             else:
                 increase_month = start_date.month
                 increase_year = start_date.year
-                index_month = (increase_month - 1) or 12
-                index_year = increase_year if increase_month > 1 else increase_year - 1
+                if increase_month == 1:
+                    index_month = 12
+                    index_year = increase_year - 1
+                else:
+                    index_month = increase_month - 1
+                    index_year = increase_year
                 key = f"{index_year}-{str(index_month).zfill(2)}"
                 cpi = tuik_cpi.get(key)
                 if not cpi:
