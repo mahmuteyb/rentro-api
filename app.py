@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
 
@@ -19,11 +18,7 @@ tuik_cpi = {
     "2022-07": 49.65, "2022-08": 54.69, "2022-09": 59.91, "2022-10": 65.26, "2022-11": 70.36, "2022-12": 72.31,
     "2023-01": 72.45, "2023-02": 71.83, "2023-03": 70.57, "2023-04": 69.80, "2023-05": 68.25, "2023-06": 66.88,
     "2023-07": 65.73, "2023-08": 65.00, "2023-09": 64.50, "2023-10": 63.47, "2023-11": 62.02, "2023-12": 60.45,
-    "2024-01": 58.51, "2024-02": 56.90, "2024-03": 55.40, "2024-04": 53.83,
-    "2022-01": 22.58, "2022-04": 34.46, "2022-05": 39.33, "2022-09": 83.45,
-    "2023-04": 57.50, "2023-05": 63.72, "2023-09": 65.07,
-    "2024-04": 59.64, "2024-05": 62.51, "2024-09": 64.91,
-    "2025-04": 56.35
+    "2024-01": 58.51, "2024-02": 56.90, "2024-03": 55.40, "2024-04": 53.83
 }
 
 @app.route('/calculate-rent', methods=['POST'])
@@ -64,7 +59,7 @@ def calculate_rent():
                 key = f"{index_year}-{str(index_month).zfill(2)}"
                 cpi = tuik_cpi.get(key)
 
-                # DEBUG LOG
+                # DEBUG
                 print(f"DEBUG: key = {key}, cpi = {cpi}, date = {current_year_start.strftime('%d/%m/%Y')}")
 
                 if not cpi:
@@ -80,7 +75,7 @@ def calculate_rent():
             current_year_start = current_year_start.replace(year=current_year_start.year + 1)
             year += 1
 
-        return jsonify({"output": "\n".join(output_lines)})
+        return jsonify({"output": "\\n".join(output_lines)})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
