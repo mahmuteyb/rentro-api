@@ -34,15 +34,12 @@ def calculate_rent():
         current_rent = initial_rent
         output_lines = []
         year = 1
-        month = start_date.month
-        day = start_date.day
-        current_year_start = start_date
 
         while True:
-            try:
-                current_year_start = current_year_start.replace(year=start_date.year + year)
-            except:
-                current_year_start = current_year_start + timedelta(days=365)
+            if year == 1:
+                current_year_start = start_date
+            else:
+                current_year_start = start_date.replace(year=start_date.year + year - 1)
             current_year_end = current_year_start.replace(year=current_year_start.year + 1) - timedelta(days=1)
 
             if current_year_end > today:
@@ -51,14 +48,17 @@ def calculate_rent():
             label = f"{current_year_start.strftime('%d/%m/%Y')} - {current_year_end.strftime('%d/%m/%Y')}"
 
             if year == 1:
-                output_lines.append(f"{start_date.strftime('%d/%m/%Y')} - {(start_date.replace(year=start_date.year + 1) - timedelta(days=1)).strftime('%d/%m/%Y')}: {current_rent:.2f} TL")
+                output_lines.append(f"{label}: {current_rent:.2f} TL")
             else:
-                if current_year_start.month == 1:
+                # Artış ayı için bir önceki ayın TÜFE'si
+                increase_month = current_year_start.month
+                increase_year = current_year_start.year
+                if increase_month == 1:
                     index_month = 12
-                    index_year = current_year_start.year - 1
+                    index_year = increase_year - 1
                 else:
-                    index_month = current_year_start.month - 1
-                    index_year = current_year_start.year
+                    index_month = increase_month - 1
+                    index_year = increase_year
 
                 key = f"{index_year}-{str(index_month).zfill(2)}"
                 cpi = tuik_cpi.get(key)
