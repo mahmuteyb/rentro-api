@@ -64,6 +64,7 @@ def calculate_rent():
             key = f"{index_year}-{str(index_month).zfill(2)}"
             cpi = tuik_cpi.get(key)
 
+            print(f"DEBUG: property_type = '{property_type}'")
             print(f"DEBUG: year={year}, key={key}, cpi={cpi}, date={current_year_start.strftime('%d/%m/%Y')}")
 
             if not cpi:
