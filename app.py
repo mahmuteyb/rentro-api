@@ -69,8 +69,8 @@ def calculate_rent():
             if not cpi:
                 break
 
-            if property_type.strip().lower() == "konut" and
-                datetime(2022, 6, 11) <= current_year_start <= datetime(2024, 7, 1):
+            if( property_type.strip().lower() == "konut" and
+                datetime(2022, 6, 11) <= current_year_start <= datetime(2024, 7, 1)):
                 cpi = min(cpi, 25.0)
 
             current_rent *= (1 + cpi / 100)
