@@ -45,6 +45,10 @@ def calculate_rent():
                     index_year = increase_year
                 key = f"{index_year}-{str(index_month).zfill(2)}"
                 cpi = tuik_cpi.get(key)
+
+                # DEBUG LOG
+                print(f"DEBUG: key = {key}, cpi = {cpi}, date = {start_date.strftime('%d/%m/%Y')}")
+
                 if not cpi:
                     break
 
