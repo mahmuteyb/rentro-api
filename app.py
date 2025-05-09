@@ -24,42 +24,45 @@ def calculate_rent():
         current_rent = initial_rent
         output_lines = []
         year = 1
+        current_year_start = start_date
 
         while True:
-            end_date = start_date.replace(year=start_date.year + 1) - timedelta(days=1)
-            if end_date > today:
+            current_year_end = current_year_start.replace(year=current_year_start.year + 1) - timedelta(days=1)
+            if current_year_end > today:
                 break
 
-            label = f"{start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}"
+            label = f"{current_year_start.strftime('%d/%m/%Y')} - {current_year_end.strftime('%d/%m/%Y')}"
 
             if year == 1:
                 output_lines.append(f"{label}: {current_rent:.2f} TL")
             else:
-                increase_month = start_date.month
-                increase_year = start_date.year
+                increase_month = current_year_start.month
+                increase_year = current_year_start.year
+
                 if increase_month == 1:
                     index_month = 12
                     index_year = increase_year - 1
                 else:
                     index_month = increase_month - 1
                     index_year = increase_year
+
                 key = f"{index_year}-{str(index_month).zfill(2)}"
                 cpi = tuik_cpi.get(key)
 
                 # DEBUG LOG
-                print(f"DEBUG: key = {key}, cpi = {cpi}, date = {start_date.strftime('%d/%m/%Y')}")
+                print(f"DEBUG: key = {key}, cpi = {cpi}, date = {current_year_start.strftime('%d/%m/%Y')}")
 
                 if not cpi:
                     break
 
                 if (property_type.lower() == "konut" and
-                    datetime(2022, 6, 11) <= start_date <= datetime(2024, 7, 1)):
+                    datetime(2022, 6, 11) <= current_year_start <= datetime(2024, 7, 1)):
                     cpi = min(cpi, 25.0)
 
                 current_rent *= (1 + cpi / 100)
                 output_lines.append(f"{label}: {current_rent:.2f} TL (%{cpi} artış)")
 
-            start_date = start_date.replace(year=start_date.year + 1)
+            current_year_start = current_year_start.replace(year=current_year_start.year + 1)
             year += 1
 
         return jsonify({"output": "\n".join(output_lines)})
